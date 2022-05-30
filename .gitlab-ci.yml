@@ -1,0 +1,44 @@
+image: docker:stable
+services:
+  - docker:dind
+
+variables:
+  HADOLINT_IGNORE: "--ignore DL3018 --ignore DL3025"
+
+.runner_tags:
+  tags:
+    - docker
+
+stages:
+  - Test
+  - Build image
+
+Lint code:
+  image: python:3.8.6-alpine3.12
+  stage: Test
+  extends: .runner_tags
+  script:
+    - pip install pylint -U
+    - pylint *.py --exit-zero
+
+Make some tests:
+  stage: Test
+  extends: .runner_tags
+  script:
+    - echo "All ok"
+
+Scan dockerfile:
+  image: hadolint/hadolint:v1.18.2-4-gd53f589-alpine
+  stage: Test
+  extends: .runner_tags
+  script:
+    - hadolint $CI_PROJECT_DIR/Dockerfile $HADOLINT_IGNORE
+
+
+Building image:
+  stage: Build image
+  extends: .runner_tags
+  script:
+    - docker build -t mariarti/flask-app:${CI_COMMIT_SHORT_SHA} .
+    - docker login -u ${dockerhub_user} -p ${dockerhub_pwd}
+    - docker push mariarti/flask-app:${CI_COMMIT_SHORT_SHA}
