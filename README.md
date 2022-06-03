@@ -9,3 +9,22 @@ Flask is a lightweight Python web framework that provides useful tools and featu
 
 ## Flask and Docker
 The repository contain Dockerfile in order to build and run Flask app in Docker container in any environment / OS.
+
+## How to RUN
+1. Choose your distro (alpine / debian bullseye)
+2. Run this:
+```bash
+docker build -f CHOSEN_DISTRO_FILE --build-arg PYTHON_VERSION=$PYTHON_VERSION -t flask_app .
+docker run -d -p 5000:5000 flask_app
+```
+
+## Example of running (if you want alpine python image with python3.9)
+```bash
+docker build -f Dockerfile --build-arg PYTHON_VERSION=3.9 -t flask_app .
+docker run -d -p 5000:5000 flask_app
+```
+## Example of running (if you want debian bullseye python image with default python3.10)
+```bash
+docker build -f Dockerfile.debian -t flask_app .
+docker run -d -p 5000:5000 flask_app
+```
